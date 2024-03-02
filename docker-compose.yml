@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  postgres:
+    image: shandytp/amazon-sales-data-docker-db:latest
+    container_name: amazon-sales-db
+    environment:
+      POSTGRES_DB: etl_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pacmann-data:/var/lib/postgresql/data
+    networks:
+      - pacmann_net
+
+volumes:
+  pacmann-data:
+    name: pacmann-data
+
+networks:
+  pacmann_net:
+    name: pacmann-net
+    driver: bridge
