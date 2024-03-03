@@ -1,7 +1,7 @@
-version: '3'
+version: "3"
 
 services:
-  postgres:
+  amazon-sales-db:
     image: shandytp/amazon-sales-data-docker-db:latest
     container_name: amazon-sales-db
     environment:
@@ -11,13 +11,44 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pacmann-data:/var/lib/postgresql/data
+      - amazon-sales-db:/var/lib/postgresql/data
     networks:
       - pacmann_net
 
+  data-warehouse:
+    image: postgres:latest
+    container_name: data-warehouse
+    environment:
+      POSTGRES_DB: data_warehouse
+      POSTGRES_USER: pacmann_dw
+      POSTGRES_PASSWORD: pacmann_dw
+    ports:
+      - "5433:5432"
+    volumes:
+      - data-warehouse:/var/lib/postgresql/data
+    networks:
+      - pacmann_net
+
+  migrate:
+    image: migrate-alembic:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: migrate
+    volumes:
+      - ./alembic.ini:/app/alembic.ini
+    networks:
+      - pacmann_net
+    depends_on:
+      - data-warehouse
+
 volumes:
-  pacmann-data:
-    name: pacmann-data
+  amazon-sales-db:
+    name: amazon-sales-db
+
+  data-warehouse:
+    name: data-warehouse
 
 networks:
   pacmann_net:
