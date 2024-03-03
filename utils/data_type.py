@@ -26,21 +26,19 @@ def replace_column(df, col, map):
 def convert_to_date_array(value):
     if pd.isna(value):
         return '[]'
-    else:
-        date_strings = [date.strip() for date in value.split(',')]
-        date_objects = [
-            datetime.fromisoformat(date_str)
-            for date_str in date_strings]
-        sorted_dates = sorted(date_objects, reverse=True)
-        sorted_date_strings = [
-            date.strftime('%Y-%m-%d') for date in sorted_dates]
-        return json.dumps(sorted_date_strings)
+
+    date_strings = [date.strip() for date in value.split(',')]
+    date_objects = [datetime.fromisoformat(date_str)
+                    for date_str in date_strings]
+    sorted_dates = sorted(date_objects, reverse=True)
+    sorted_date_strings = [date.strftime('%Y-%m-%d') for date in sorted_dates]
+    return json.dumps(sorted_date_strings)
 
 
 def convert_to_string_array(value):
     if pd.isna(value):
         return '[]'
-    else:
-        strings = [date.strip() for date in value.split(',')]
-        sorted_strings = sorted(strings, reverse=True)
-        return json.dumps(sorted_strings)
+
+    strings = [date.strip() for date in value.split(',')]
+    sorted_strings = sorted(strings, reverse=True)
+    return json.dumps(sorted_strings)

@@ -1,5 +1,6 @@
 import datetime
 import json
+import re
 import pandas as pd
 
 from tasks.extract import *
@@ -23,8 +24,11 @@ class TransformSalesData(luigi.Task):
             "ratings", "no_of_ratings", "discount_price", "actual_price",
         ]]
 
+        # Keep 1 record for each duplicated data
+        cleaned_data = extracted_data.drop_duplicates(keep="first")
+
         # Clean up column "ratings", "no_of_rating"
-        cleaned_data = set_float_column(extracted_data, "ratings")
+        cleaned_data = set_float_column(cleaned_data, "ratings")
         cleaned_data = set_float_column(cleaned_data, "no_of_ratings")
 
         # Clean up column "discount_price", "actual_price"
@@ -35,9 +39,6 @@ class TransformSalesData(luigi.Task):
         cleaned_data = replace_column(extracted_data, "main_category", {
             "home, kitchen, pets": "home & kitchen",
         })
-
-        # Keep 1 record for each duplicated data
-        cleaned_data = cleaned_data.drop_duplicates(keep="first")
 
         # Remove records with "actual_price" > 0 as it"s not relevant sales
         cleaned_data = cleaned_data[cleaned_data["actual_price"] > 0]
@@ -57,8 +58,11 @@ class TransformMarketingData(luigi.Task):
     def run(self):
         extracted_data = pd.read_csv(self.input().path)
 
+        # Keep 1 record for each duplicated data
+        cleaned_data = extracted_data.drop_duplicates(keep="first")
+
         # Renamed columns for easy usage
-        cleaned_data = extracted_data.rename(columns={
+        cleaned_data = cleaned_data.rename(columns={
             "id": "uid",
             "prices.amountMax": "amount_max",
             "prices.amountMin": "amount_min",
@@ -95,7 +99,7 @@ class TransformMarketingData(luigi.Task):
 
         # Define consistent enum for 'condition'
         cleaned_data["condition"] = cleaned_data["condition"].\
-            apply(self.replace_value)
+            apply(self.normalize_condition)
         cleaned_data = replace_column(cleaned_data, "condition", {
             "pre-owned": "Used",
         })
@@ -123,17 +127,16 @@ class TransformMarketingData(luigi.Task):
             apply(convert_to_string_array)
 
         # Separate value and unit from 'weight'
-        extracted_data[["weight_value", "weight_unit"]] = \
-            extracted_data['weight'].str.split(n=1, expand=True)
-        extracted_data = set_float_column(extracted_data, "weight_value")
+        cleaned_data["weight"] = cleaned_data["weight"].\
+            apply(self.trim_weight)
 
         # Select only necessary columns
         cleaned_data = cleaned_data[[
             "uid", "name", "primary_categories", "categories", "condition",
             "availability", "brand", "merchant", "currency", "amount_max",
-            "amount_min", "shipping", "is_sale", "weight",  "weight_value",
-            "weight_unit", "manufacturer", "manufacturer_number", "source_urls",
-            "image_urls", "asins", "ean", "keys", "upc", "date_seen",  "date_added", "date_updated",
+            "amount_min", "shipping", "is_sale", "weight", "manufacturer",
+            "manufacturer_number", "source_urls", "image_urls", "asins",
+            "ean", "keys", "upc", "date_seen",  "date_added", "date_updated",
         ]]
 
         transformed_data = cleaned_data.reset_index(drop=True)
@@ -142,10 +145,28 @@ class TransformMarketingData(luigi.Task):
     def output(self):
         return luigi.LocalTarget(TRANSFORMED_DATA_DIR+"marketing_data.csv")
 
-    def replace_value(value):
+    def normalize_condition(value):
         if "new" in value.lower():
             return "New"
         elif "refurbished" in value.lower():
             return "Refurbished"
         else:
             return value
+
+    def trim_weight(value):
+        if pd.isna(value):
+            return "[]"
+
+        weight_strings = re.sub(' +', ' ', value).split(" ")
+
+        if len(weight_strings) < 2:
+            return "[]"
+
+        i = 0
+        normalized_weights = []
+        while i < len(weight_strings):
+            normalized_weights.append(
+                weight_strings[i] + " " + weight_strings[i+1])
+            i += 2
+
+        return json.dumps(normalized_weights)
