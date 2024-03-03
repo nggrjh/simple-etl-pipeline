@@ -10,6 +10,7 @@ from utils.data_type import *
 
 
 if __name__ == "__main__":
+    luigi.configuration.get_config().lock_task_scheduler = False
     luigi.build([
         ExtractSalesData(), ExtractMarketingData(),
         TransformSalesData(), TransformMarketingData(),

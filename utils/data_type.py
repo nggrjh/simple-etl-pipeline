@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 def set_float_column(df, col):
-    df[col] = df[col].fillna('')
+    df[col] = df[col].fillna("")
     df[col] = df[col].str.replace(",", "").replace("", "0")
     df.loc[df[col].str.contains(r'[^0-9.]', regex=True), col] = "0"
     df[col] = df[col].astype(float)
@@ -25,20 +25,20 @@ def replace_column(df, col, map):
 
 def convert_to_date_array(value):
     if pd.isna(value):
-        return '[]'
+        return "[]"
 
-    date_strings = [date.strip() for date in value.split(',')]
+    date_strings = [date.strip() for date in value.split(",")]
     date_objects = [datetime.fromisoformat(date_str)
                     for date_str in date_strings]
     sorted_dates = sorted(date_objects, reverse=True)
-    sorted_date_strings = [date.strftime('%Y-%m-%d') for date in sorted_dates]
+    sorted_date_strings = [date.strftime("%Y-%m-%d") for date in sorted_dates]
     return json.dumps(sorted_date_strings)
 
 
 def convert_to_string_array(value):
     if pd.isna(value):
-        return '[]'
+        return "[]"
 
-    strings = [date.strip() for date in value.split(',')]
+    strings = [date.strip() for date in value.split(",")]
     sorted_strings = sorted(strings, reverse=True)
     return json.dumps(sorted_strings)

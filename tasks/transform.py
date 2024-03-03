@@ -36,14 +36,14 @@ class TransformSalesData(luigi.Task):
         cleaned_data = set_money_column(cleaned_data, "actual_price", "₹")
 
         # Categorize "home, kitchen, pets" as "home & kitchen"
-        cleaned_data = replace_column(extracted_data, "main_category", {
+        cleaned_data = replace_column(cleaned_data, "main_category", {
             "home, kitchen, pets": "home & kitchen",
         })
 
         # Remove records with "actual_price" > 0 as it"s not relevant sales
         cleaned_data = cleaned_data[cleaned_data["actual_price"] > 0]
 
-        transformed_data = cleaned_data.reset_index(drop=True)
+        transformed_data = cleaned_data.reset_index(drop=True).copy()
         transformed_data.to_csv(self.output().path, index=False)
 
     def output(self):
@@ -82,7 +82,7 @@ class TransformMarketingData(luigi.Task):
             "id": "uid",
         })
 
-        # Define consistent enum for 'availability'
+        # Define consistent enum for "availability"
         cleaned_data = replace_column(cleaned_data, "availability", {
             "Yes": "In Stock",
             "yes":  "In Stock",
@@ -97,7 +97,7 @@ class TransformMarketingData(luigi.Task):
             "More on the Way": "Out Of Stock",
         })
 
-        # Define consistent enum for 'condition'
+        # Define consistent enum for "condition"
         cleaned_data["condition"] = cleaned_data["condition"].\
             apply(self.normalize_condition)
         cleaned_data = replace_column(cleaned_data, "condition", {
@@ -111,22 +111,21 @@ class TransformMarketingData(luigi.Task):
         cleaned_data = set_float_column(cleaned_data, "ean")
 
         cleaned_data["manufacturer"] = cleaned_data["manufacturer"].\
-            fillna('')
+            fillna("")
 
         # Extract multiple values column to more readable format
-        cleaned_data['date_seen'] = cleaned_data["date_seen"].\
+        cleaned_data["date_seen"] = cleaned_data["date_seen"].\
             apply(convert_to_date_array)
 
         # Combine similar columns
-        cleaned_data['source_urls'] += "," + cleaned_data['sourceURLs']
-        cleaned_data['source_urls'] = cleaned_data["source_urls"].\
+        cleaned_data["source_urls"] += "," + cleaned_data["sourceURLs"]
+        cleaned_data["source_urls"] = cleaned_data["source_urls"].\
             apply(convert_to_string_array)
         cleaned_data = cleaned_data.drop(columns=["sourceURLs"])
 
-        cleaned_data['image_urls'] = cleaned_data["image_urls"].\
+        cleaned_data["image_urls"] = cleaned_data["image_urls"].\
             apply(convert_to_string_array)
 
-        # Separate value and unit from 'weight'
         cleaned_data["weight"] = cleaned_data["weight"].\
             apply(self.trim_weight)
 
@@ -139,13 +138,13 @@ class TransformMarketingData(luigi.Task):
             "ean", "keys", "upc", "date_seen",  "date_added", "date_updated",
         ]]
 
-        transformed_data = cleaned_data.reset_index(drop=True)
+        transformed_data = cleaned_data.reset_index(drop=True).copy()
         transformed_data.to_csv(self.output().path, index=False)
 
     def output(self):
         return luigi.LocalTarget(TRANSFORMED_DATA_DIR+"marketing_data.csv")
 
-    def normalize_condition(value):
+    def normalize_condition(self, value):
         if "new" in value.lower():
             return "New"
         elif "refurbished" in value.lower():
@@ -153,11 +152,11 @@ class TransformMarketingData(luigi.Task):
         else:
             return value
 
-    def trim_weight(value):
+    def trim_weight(self, value):
         if pd.isna(value):
             return "[]"
 
-        weight_strings = re.sub(' +', ' ', value).split(" ")
+        weight_strings = re.sub(" +", " ", value).split(" ")
 
         if len(weight_strings) < 2:
             return "[]"
