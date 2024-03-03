@@ -8,7 +8,7 @@
 
 Before you start the ETL Pipeline, make sure you have the following installed on your system:
 
-- Go Lang (version 1.20 or higher): [Install Go](https://golang.org/doc/install)
+- Python 3:  [Install Python 3](https://realpython.com/installing-python/)
 - Docker: [Install Docker](https://docs.docker.com/get-docker/)
 - Docker Compose: [Install Docker Compose](https://docs.docker.com/compose/install/)
 
