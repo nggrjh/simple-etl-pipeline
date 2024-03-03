@@ -11,5 +11,7 @@ from utils.data_type import *
 
 if __name__ == "__main__":
     luigi.build([
-        ExtractSalesData(), TransformSalesData(), LoadSalesData(),
+        ExtractSalesData(), ExtractMarketingData(),
+        TransformSalesData(), TransformMarketingData(),
+        LoadSalesData(), LoadMarketingData(),
     ], local_scheduler=True)
