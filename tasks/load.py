@@ -1,6 +1,6 @@
-import datetime
 import pandas as pd
 
+from datetime import datetime
 from tasks.transform import *
 from utils.data_type import *
 
@@ -12,7 +12,7 @@ class LoadSalesData(luigi.Task):
 
     def run(self):
         transformed_data = pd.read_csv(self.input().path)
-        transformed_data["created_at"] = datetime.datetime.now()
+        transformed_data["created_at"] = datetime.now()
 
         engine = create_engine(
             "postgresql://pacmann_dw:pacmann_dw@localhost:5433/data_warehouse")
