@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - amazon-sales-db:/var/lib/postgresql/data
+      - db_amazon_sales:/var/lib/postgresql/data
     networks:
       - pacmann_net
 
@@ -25,29 +25,15 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - data-warehouse:/var/lib/postgresql/data
+      - db_data_warehouse:/var/lib/postgresql/data
     networks:
       - pacmann_net
-
-  migrate:
-    image: migrate-alembic:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-    
-    container_name: migrate
-    volumes:
-      - ./alembic.ini:/app/alembic.ini
-    networks:
-      - pacmann_net
-    depends_on:
-      - data-warehouse
 
 volumes:
-  amazon-sales-db:
+  db_amazon_sales:
     name: amazon-sales-db
 
-  data-warehouse:
+  db_data_warehouse:
     name: data-warehouse
 
 networks:
