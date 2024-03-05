@@ -82,6 +82,9 @@ class TransformMarketingData(luigi.Task):
             "id": "uid",
         })
 
+        cleaned_data["manufacturer"] = cleaned_data["manufacturer"].\
+            fillna("")
+
         # Define consistent enum for "availability"
         cleaned_data = replace_column(cleaned_data, "availability", {
             "Yes": "In Stock",
@@ -109,22 +112,20 @@ class TransformMarketingData(luigi.Task):
 
         cleaned_data = set_money_column(cleaned_data, "shipping", "USD ")
         cleaned_data = set_float_column(cleaned_data, "ean")
-
-        cleaned_data["manufacturer"] = cleaned_data["manufacturer"].\
-            fillna("")
+        cleaned_data = set_float_column(cleaned_data, "upc")
 
         # Extract multiple values column to more readable format
         cleaned_data["date_seen"] = cleaned_data["date_seen"].\
-            apply(convert_to_date_array)
+            apply(concate_date)
 
         # Combine similar columns
         cleaned_data["source_urls"] += "," + cleaned_data["sourceURLs"]
         cleaned_data["source_urls"] = cleaned_data["source_urls"].\
-            apply(convert_to_string_array)
+            apply(concate_string)
         cleaned_data = cleaned_data.drop(columns=["sourceURLs"])
 
         cleaned_data["image_urls"] = cleaned_data["image_urls"].\
-            apply(convert_to_string_array)
+            apply(concate_string)
 
         cleaned_data["weight"] = cleaned_data["weight"].\
             apply(self.trim_weight)
@@ -154,18 +155,21 @@ class TransformMarketingData(luigi.Task):
 
     def trim_weight(self, value):
         if pd.isna(value):
-            return "[]"
+            return ""
 
         weight_strings = re.sub(" +", " ", value).split(" ")
 
         if len(weight_strings) < 2:
-            return "[]"
+            return ""
 
         i = 0
         normalized_weights = []
         while i < len(weight_strings):
-            normalized_weights.append(
-                weight_strings[i] + " " + weight_strings[i+1])
+            weight = weight_strings[i] + " " + weight_strings[i+1]
+
+            if weight not in normalized_weights:
+                normalized_weights.append(weight)
+
             i += 2
 
-        return json.dumps(normalized_weights)
+        return ", ".join(normalized_weights)

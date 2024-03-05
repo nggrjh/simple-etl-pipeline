@@ -1,5 +1,4 @@
 
-import json
 import pandas as pd
 
 from datetime import datetime
@@ -23,7 +22,7 @@ def replace_column(df, col, map):
     return df
 
 
-def convert_to_date_array(value):
+def concate_date(value):
     if pd.isna(value):
         return "[]"
 
@@ -32,13 +31,13 @@ def convert_to_date_array(value):
                     for date_str in date_strings]
     sorted_dates = sorted(date_objects, reverse=True)
     sorted_date_strings = [date.strftime("%Y-%m-%d") for date in sorted_dates]
-    return json.dumps(sorted_date_strings)
+    return ", ".joins(sorted_date_strings)
 
 
-def convert_to_string_array(value):
+def concate_string(value):
     if pd.isna(value):
-        return "[]"
+        return ""
 
     strings = [date.strip() for date in value.split(",")]
     sorted_strings = sorted(strings, reverse=True)
-    return json.dumps(sorted_strings)
+    return ", ".joins(sorted_strings)
