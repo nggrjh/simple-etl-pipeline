@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import re
 import pandas as pd
 
@@ -17,6 +18,7 @@ class TransformSalesData(luigi.Task):
 
     def run(self):
         extracted_data = pd.read_csv(self.input().path)
+        os.remove(self.input().path)
 
         # Select only necessary columns
         extracted_data = extracted_data[[
@@ -57,6 +59,7 @@ class TransformMarketingData(luigi.Task):
 
     def run(self):
         extracted_data = pd.read_csv(self.input().path)
+        os.remove(self.input().path)
 
         # Keep 1 record for each duplicated data
         cleaned_data = extracted_data.drop_duplicates(keep="first")
@@ -111,8 +114,14 @@ class TransformMarketingData(luigi.Task):
         cleaned_data = cleaned_data[cleaned_data["currency"] == "USD"]
 
         cleaned_data = set_money_column(cleaned_data, "shipping", "USD ")
+
         cleaned_data = set_float_column(cleaned_data, "ean")
+        cleaned_data["ean"] = cleaned_data["ean"].astype(str)
+        cleaned_data["ean"] = cleaned_data["ean"].str.replace(",", "")
+
         cleaned_data = set_float_column(cleaned_data, "upc")
+        cleaned_data["upc"] = cleaned_data["upc"].astype(str)
+        cleaned_data["upc"] = cleaned_data["upc"].str.replace(",", "")
 
         # Extract multiple values column to more readable format
         cleaned_data["date_seen"] = cleaned_data["date_seen"].\
@@ -129,13 +138,14 @@ class TransformMarketingData(luigi.Task):
 
         cleaned_data["weight_value"] = cleaned_data["weight"].\
             apply(self.trim_weight)
-        cleaned_data.loc[cleaned_data["weight"] != '', "weight_unit"] = "ounces"
+        cleaned_data.loc[cleaned_data["weight"]
+                         != '', "weight_unit"] = "ounces"
 
         # Select only necessary columns
         cleaned_data = cleaned_data[[
             "uid", "name", "primary_categories", "categories", "condition",
-            "availability", "brand", "merchant", "currency", "amount_max",
-            "amount_min", "shipping", "is_sale", "weight", "manufacturer",
+            "availability", "brand", "merchant", "currency", "amount_max", "amount_min",
+            "shipping", "is_sale", "weight_value", "weight_unit", "manufacturer",
             "manufacturer_number", "source_urls", "image_urls", "asins",
             "ean", "keys", "upc", "date_seen",  "date_added", "date_updated",
         ]]
@@ -170,10 +180,27 @@ class TransformMarketingData(luigi.Task):
             unit = weight_strings[i+1]
 
             if unit in ["lb", "pounds"]:
-                value = str(int(value) * 16)
+                value = str(float(value) * 16)
 
             normalized_weights.append(value)
 
             i += 2
 
         return ", ".join(normalized_weights)
+
+
+class TransformArticles(luigi.Task):
+
+    def requires(self):
+        return ExtractArticles()
+
+    def run(self):
+        extracted_data = pd.read_csv(self.input().path)
+        os.remove(self.input().path)
+
+        transformed_data = extracted_data.\
+            sort_values(by="date", ascending=False, ignore_index=True)
+        transformed_data.to_csv(self.output().path, index=False)
+
+    def output(self):
+        return luigi.LocalTarget(TRANSFORMED_DATA_DIR+"articles.csv")
