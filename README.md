@@ -2,9 +2,37 @@
 
 ## Requirements Gathering & Solution
 
+### Problems
+
+- Tim Sales has sales data stored in PostgreSQL Database. However, there are still many missing data, and the data format is incorrect.
+- Tim Product also has data on Electronic Product Pricing in CSV format, but the data structure is messy, and there are many missing values.
+
+### Solutions
+
+- The Data Engineer will build a pipeline to extract data from the database, the CSV file, and web scraping sources. All missing values will be addressed, duplicate records will be removed, and the correct data types will be assigned.
+- The Data Engineer will create a schedule to ensure that the pipeline is always up-to-date based on the latest data.
+
 ## Designing ETL Pipeline
 
-## ETL Implementation & Scheduling
+![ETL Pipeline](etl-pipeline.svg)
+
+### Extract
+
+- Obtain data from various sources.
+- Establish a database connection to retrieve data.
+- Read CSV files for data.
+- Scrape data from web sources.
+
+### Transform
+
+- Select all required columns.
+- Retain one record for each duplicate entry.
+- Populate empty fields and ensure consistent data types.
+- Convert currency to float for easier manipulation.
+
+### Load
+
+- Store all transformed data into their respective tables.
 
 ## Testing Scenario
 
