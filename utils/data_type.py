@@ -31,7 +31,7 @@ def concate_date(value):
                     for date_str in date_strings]
     sorted_dates = sorted(date_objects, reverse=True)
     sorted_date_strings = [date.strftime("%Y-%m-%d") for date in sorted_dates]
-    return ", ".joins(sorted_date_strings)
+    return ", ".join(sorted_date_strings)
 
 
 def concate_string(value):
@@ -40,4 +40,4 @@ def concate_string(value):
 
     strings = [date.strip() for date in value.split(",")]
     sorted_strings = sorted(strings, reverse=True)
-    return ", ".joins(sorted_strings)
+    return ", ".join(sorted_strings)

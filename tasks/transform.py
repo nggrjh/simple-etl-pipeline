@@ -127,8 +127,9 @@ class TransformMarketingData(luigi.Task):
         cleaned_data["image_urls"] = cleaned_data["image_urls"].\
             apply(concate_string)
 
-        cleaned_data["weight"] = cleaned_data["weight"].\
+        cleaned_data["weight_value"] = cleaned_data["weight"].\
             apply(self.trim_weight)
+        cleaned_data.loc[cleaned_data["weight"] != '', "weight_unit"] = "ounces"
 
         # Select only necessary columns
         cleaned_data = cleaned_data[[
@@ -165,10 +166,13 @@ class TransformMarketingData(luigi.Task):
         i = 0
         normalized_weights = []
         while i < len(weight_strings):
-            weight = weight_strings[i] + " " + weight_strings[i+1]
+            value = weight_strings[i]
+            unit = weight_strings[i+1]
 
-            if weight not in normalized_weights:
-                normalized_weights.append(weight)
+            if unit in ["lb", "pounds"]:
+                value = str(int(value) * 16)
+
+            normalized_weights.append(value)
 
             i += 2
 
