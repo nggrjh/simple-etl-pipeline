@@ -16,6 +16,8 @@
 
 ![ETL Pipeline](etl-pipeline.png)
 
+## ETL Implementation
+
 ### Extract
 
 - Obtain data from various sources.
@@ -34,7 +36,20 @@
 
 - Store all transformed data into their respective tables.
 
-## Testing Scenario
+## ETL Scheduling
+
+Follow these steps to schedule the ETL process in crontab:
+
+- Use `crontab -e` to open crontab.
+- Add schedule using this syntax:
+
+  ```sh
+  * * * * * python <project_path>/etl.py
+  ```
+
+- Check with `crontab -l` to verify.
+
+### Local Environment Setup
 
 Make sure you have the following installed on your system:
 
@@ -67,13 +82,4 @@ python etl.py
 
 This command will start the ETL process and populate the data warehouse with the extracted, transformed, and loaded data.
 
-Follow these steps to schedule the ETL process in crontab:
-
-- Use `crontab -e` to open crontab.
-- Add schedule using this syntax:
-
-  ```sh
-  * * * * * python <project_path>/etl.py
-  ```
-
-- Check with `crontab -l` to verify.
+## Testing Scenario

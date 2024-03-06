@@ -1,5 +1,10 @@
+beautifulsoup4==4.12.3
+bs4==0.0.2
+certifi==2024.2.2
+charset-normalizer==3.3.2
 docutils==0.20.1
 greenlet==3.0.3
+idna==3.6
 lockfile==0.12.2
 luigi==3.5.0
 numpy==1.26.4
@@ -8,9 +13,12 @@ psycopg2==2.9.9
 python-daemon==3.0.1
 python-dateutil==2.9.0.post0
 pytz==2024.1
+requests==2.31.0
 six==1.16.0
+soupsieve==2.5
 SQLAlchemy==2.0.27
 tenacity==8.2.3
 tornado==6.4
 typing_extensions==4.10.0
 tzdata==2024.1
+urllib3==2.2.1

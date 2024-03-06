@@ -32,11 +32,14 @@ services:
 volumes:
   db_amazon_sales:
     name: amazon-sales-db
+    external: false
 
   db_data_warehouse:
     name: data-warehouse
+    external: false
 
 networks:
   pacmann_net:
     name: pacmann-net
     driver: bridge
+    external: false
