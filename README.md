@@ -1,4 +1,4 @@
-# Pacmann Data Eng Intro
+# Simple ETL Pipeline
 
 ## Requirements Gathering & Solution
 
