@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 def set_float_column(df, col):
-    df[col] = df[col].fillna("")
+    df[col] = df[col].fillna("-")
     df[col] = df[col].str.replace(",", "").replace("", "0")
     df.loc[df[col].str.contains(r'[^0-9.]', regex=True), col] = "0"
     df[col] = df[col].astype(float)
@@ -24,7 +24,7 @@ def replace_column(df, col, map):
 
 def concate_date(value):
     if pd.isna(value):
-        return "[]"
+        return ""
 
     date_strings = [date.strip() for date in value.split(",")]
     date_objects = [datetime.fromisoformat(date_str)
