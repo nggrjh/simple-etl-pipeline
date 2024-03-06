@@ -44,6 +44,7 @@ class LoadMarketingData(luigi.Task):
         engine = create_engine(
             "postgresql://pacmann_dw:pacmann_dw@localhost:5433/data_warehouse")
 
+        transformed_data["created_at"] = datetime.now()
         transformed_data.index += 1
         transformed_data.to_sql(
             name="dw_marketing_data",
@@ -69,6 +70,7 @@ class LoadArticles(luigi.Task):
         engine = create_engine(
             "postgresql://pacmann_dw:pacmann_dw@localhost:5433/data_warehouse")
 
+        transformed_data["created_at"] = datetime.now()
         transformed_data.index += 1
         transformed_data.to_sql(
             name="dw_article_data",

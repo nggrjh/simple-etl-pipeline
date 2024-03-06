@@ -14,7 +14,7 @@
 
 ## Designing ETL Pipeline
 
-![ETL Pipeline](etl-pipeline.svg)
+![ETL Pipeline](etl-pipeline.png)
 
 ### Extract
 
@@ -66,3 +66,14 @@ python etl.py
 ```
 
 This command will start the ETL process and populate the data warehouse with the extracted, transformed, and loaded data.
+
+Follow these steps to schedule the ETL process in crontab:
+
+- Use `crontab -e` to open crontab.
+- Add schedule using this syntax:
+
+  ```sh
+  * * * * * python <project_path>/etl.py
+  ```
+
+- Check with `crontab -l` to verify.
