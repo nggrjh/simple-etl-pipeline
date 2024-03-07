@@ -83,3 +83,15 @@ python etl.py
 This command will start the ETL process and populate the data warehouse with the extracted, transformed, and loaded data.
 
 ## Testing Scenario
+
+**Objective**: Validate data results of the ETL pipeline.
+
+**Setup**:
+
+- Each table that represents each data source has been configured having unique identifiers.
+- Data warehouse set up to only accept new data.
+
+**Expected Outcome**:
+
+- Newly extracted data should be successfully loaded into the warehouse.
+- Existing data should remain unchanged.
